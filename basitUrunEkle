@@ -1,0 +1,229 @@
+package ikas.TestNG;
+
+
+
+        import org.openqa.selenium.support.ui.ExpectedConditions;
+        import org.openqa.selenium.support.ui.WebDriverWait;
+        import org.testng.annotations.AfterTest;
+        import org.testng.annotations.BeforeTest;
+        import org.testng.annotations.Test;
+
+        import org.openqa.selenium.By;
+        import org.openqa.selenium.Keys;
+        import org.openqa.selenium.WebDriver;
+        import org.openqa.selenium.WebElement;
+        import org.openqa.selenium.chrome.ChromeDriver;
+        import org.openqa.selenium.remote.DesiredCapabilities;
+
+
+        import java.util.List;
+        import java.util.Random;
+        import java.util.concurrent.TimeUnit;
+
+        import static org.openqa.selenium.By.name;
+        import static org.openqa.selenium.By.xpath;
+
+
+
+    public class Basiturunekle {
+        
+
+    protected WebDriver driver;
+    public static String loginUrl = "https://app-dev.ikas.com/#/login";
+        private String TagInnerText;
+
+
+        @BeforeTest
+     void setUp() {
+
+        try {
+
+            DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+            System.setProperty("webdriver.chrome.driver", "/Users/nesli/ikasTestNG/Driver/chromedriver 3");
+            driver = new ChromeDriver(capabilities);
+            driver.manage().window().maximize();
+            driver.manage().deleteAllCookies();
+
+            //dynamic wait
+            driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
+            driver.manage().timeouts().setScriptTimeout(30, TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test (priority=1)
+    void basitUrunEkle() {
+        try {
+
+            driver.get(loginUrl);
+            driver.findElement(name("email")).sendKeys("nesli.necipoglu+1@ikas.com");
+            Thread.sleep(1000);
+            driver.findElement(name("password")).sendKeys("123=ilsen");
+            Thread.sleep(1000);
+            driver.findElement(xpath("/html/body/div[1]/div/div/div[2]/div/div[2]/form/div[3]/button")).click();
+            Thread.sleep(5000);
+
+
+
+                    driver.findElement(xpath("/html/body/div[1]/div/nav/ul[1]/li[2]/div/button")).click(); //Ürün Label
+                    Thread.sleep(3000);
+                    driver.findElement(xpath("/html[1]/body[1]/div[1]/div[1]/nav[1]/ul[1]/li[2]/ul[1]/li[1]/a[1]")).click(); //Ürün Listeleme
+                    Thread.sleep(3000);
+                    driver.findElement(xpath("//button[@class='u-margin-left-10 btn btn-primary']")).click(); // Ürün Ekle
+                    Thread.sleep(3000);
+                    driver.findElement(xpath("/html/body/div[1]/main/div/div[2]/div/div[1]")).click(); // Basit Ürün Ekle
+                    Thread.sleep(3000);
+                    driver.findElement(xpath(" //*[@id=\"name\"]")).sendKeys("Tencere"); // Basit Ürün isim
+                    Thread.sleep(3000);
+                    driver.findElement(xpath("//*[@id=\"sell_price\"]")).sendKeys("35"); // satış fiyatı
+                    Thread.sleep(3000);
+
+
+                    //ETİKET OLUŞTURMA
+
+                    WebElement Etiket = driver.findElement(xpath("//div[@class='Basic tab']//div[@class='multiselect tag']"));
+                    WebElement etiketInput = driver.findElement(xpath("//input[@id='tag_ids']"));
+                    Etiket.click();
+                    Thread.sleep(3000);
+                    etiketInput.sendKeys("Mutfak");
+                    etiketInput.sendKeys(Keys.ENTER);
+
+
+                    WebElement x = driver.findElement(xpath("/html/body/div[1]/main/div/div[2]/div/div[1]/div[1]/div[3]/div[2]/div/div[1]/div[2]"));
+                    TagInnerText = x.getText();
+                    System.out.println("Etiket Adı :" + TagInnerText);
+
+            Thread.sleep(5000);
+                    //TAX OLUŞTURMA
+                    WebElement tax = driver.findElement(xpath("//div[@class='Form-item required']//div[@class='multiselect__tags']"));
+                    WebElement taxinput = driver.findElement(xpath("//input[@id='tax_id']"));
+                    tax.click();
+                    Thread.sleep(1000);
+                    taxinput.sendKeys("%18");
+                    Thread.sleep(1000);
+                    taxinput.click();
+                    taxinput.sendKeys(Keys.ENTER);
+                    Thread.sleep(1000);
+
+
+                    driver.findElement(xpath("/html/body/div[1]/main/div/div[1]/div[2]/template/div/div")).click(); // kaydet
+                    Thread.sleep(3000);
+
+
+            // POS EKRANINA GİT
+
+            driver.findElement(xpath("//a[@class='web btn btn-primary']")).click(); // pos ekranına gider
+            Thread.sleep(10000);
+
+
+            //RANDOM ŞUBE SEÇİMİ
+
+
+            WebElement BranchesTypesContainer = driver.findElement(xpath("/html/body/div[2]/div/div/div[3]/div"));
+            List<WebElement> BranchesTypes = BranchesTypesContainer.findElements(By.xpath("./*"));
+            Random BranchesTypeRandom = new Random();
+            int BrunchesTypeCount = BranchesTypes.size();
+            int BrunchesTypeIndex = BranchesTypeRandom.nextInt(BrunchesTypeCount);
+            BranchesTypes.get(BrunchesTypeIndex).click();
+            Thread.sleep(5000);
+
+
+            //RANDOM KASA SEÇİMİ
+
+            WebElement TerminalTypesContainer = driver.findElement(xpath("/html/body/div[2]/div/div/div[3]/div"));
+            List<WebElement> TerminalTypes = TerminalTypesContainer.findElements(By.xpath("./*"));
+            Random TerminalTypeRandom = new Random();
+            int TerminalTypesTypeCount = TerminalTypes.size();
+            int TerminalTypesIndex = TerminalTypeRandom.nextInt(TerminalTypesTypeCount);
+
+            WebElement selectedTerminal = TerminalTypes.get(TerminalTypesIndex);
+            String className1 = selectedTerminal.getAttribute("class");
+            System.out.println(className1);
+            selectedTerminal.click();
+            Thread.sleep(3000);
+
+            String className = "terminal btn btn-line-white is-open";
+            System.out.println(className);
+            Thread.sleep(2000);
+
+
+            if (className1.equals(className)) {
+
+                driver.findElement(xpath("/html/body/div[2]/div/div/div[4]/div/div[3]/button[2]")).click();
+            } else {
+
+                driver.findElement(xpath("//*[@id=\"open_balance\"]")).sendKeys("100");
+
+                driver.findElement(xpath("//button[@class='btn btn-blue btn-wide']")).click();
+            }
+
+
+            //ÜRÜN SEÇİMİ
+
+            WebElement TagTypesAll = driver.findElement(xpath("/html/body/div[2]/div/div/div/div[1]/div[2]/div[1]/div[2]/div"));
+            List<WebElement> TagTypes = TagTypesAll.findElements(By.xpath("./*"));
+
+
+                for (WebElement tagElement : TagTypes) {
+                String tagText = tagElement.getText();
+                if (tagText.equals(TagInnerText)) {
+                    tagElement.click();
+                    break;
+                }
+            }
+
+
+            //ÜRÜN SEPETE AT
+
+            Thread.sleep(1000);
+            driver.findElement(xpath("/html/body/div[2]/div/div/div/div[1]/div[2]/div[2]/div[1]/div/div[1]/div/button[2]")).click();  // ürünü sepete at
+            Thread.sleep(3000);
+            driver.findElement(xpath("//button[@class='paid btn btn-green']")).click();  //pay
+            Thread.sleep(5000);
+
+
+            //RANDOM ÖDEME SEÇİMİ
+
+            WebElement paymentTypesContainer = driver.findElement(xpath("/html/body/div[2]/div/div/div/div[2]/div/div[3]/div/div[2]"));
+            List<WebElement> paymentTypes = paymentTypesContainer.findElements(By.xpath("./*"));
+            Random paymentTypeRandom = new Random();
+            int paymentTypeCount = paymentTypes.size();
+            int paymentTypeIndex = paymentTypeRandom.nextInt(paymentTypeCount);
+            WebElement paymentTypeElement = paymentTypes.get(paymentTypeIndex);
+            String paymentTypeName = paymentTypeElement.getText();
+            paymentTypeElement.click();
+            Thread.sleep(3000);
+            driver.findElement(xpath("//button[@class='btn menu']")).click(); // 3 nokta
+            Thread.sleep(3000);
+            driver.findElement(xpath("/html/body/div[2]/div/div/div[1]/ul[1]/li[3]/a")).click(); // satış geçmişi
+
+            //CHECK RESULT
+
+            List<WebElement> paymentTyperowsize = driver.findElements(xpath("//tr[*]//td[4]"));
+            System.out.println("İşlem sayısı : " + paymentTyperowsize.size());
+            String foundPaymentType = driver.findElement(xpath("//tr[1]//td[4]")).getText();
+            if (foundPaymentType.equals(paymentTypeName)) {
+                System.out.println("Ödeme Tipi Eşit");
+            } else {
+                System.out.println("Ödeme Tipi Eşit Değil");
+
+
+
+            }
+        }
+         catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+   }
+
+    @AfterTest
+     void tearDown() throws Exception {
+
+    }
+   }
+
+
